@@ -1,4 +1,5 @@
 import socket
+import threading
 
 # ZAD1
 def get_ntp_time():
@@ -78,29 +79,86 @@ def udp_math_client():
     print("Wynik:", data.decode())
 
 # ZAD7
+def check_port_service(server_address: str, port: int):
+    try:
+        sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+        sock.settimeout(5)
+
+        print(f"Łączenie z {server_address}:{port}...")
+        sock.connect((server_address, port))
+
+        try:
+            service_name = socket.getservbyport(port)
+        except OSError:
+            service_name = "Nieznana usługa"
+
+        print(f"Połączenie nawiązane! Usługa: {service_name}")
+
+        sock.close()
+    except socket.gaierror:
+        print("Błąd: Nie można rozpoznać adresu serwera")
+    except socket.timeout:
+        print("Błąd: Przekroczono czas oczekiwania na połączenie")
+    except ConnectionRefusedError:
+        print("Błąd: Połączenie odrzucone (port prawdopodobnie zamknięty)")
+    except Exception as e:
+        print(f"Błąd: {e}")
 
 # ZAD8
+def scan_port(host, port):
+    sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+    sock.settimeout(0.5)
+
+    try:
+        sock.connect((host, port))
+        try:
+            service_name = socket.getservbyport(port)
+        except OSError:
+            service_name = "Nieznana usługa"
+
+        print(f"Port {port} jest otwarty - Usługa: {service_name}")
+
+    except (socket.timeout, ConnectionRefusedError):
+        pass
+    finally:
+        sock.close()
+
+def scan_ports(host, start_port=1, end_port=1024, max_threads=100):
+    print(f"Skanowanie hosta {host} od portu {start_port} do {end_port}...\n")
+
+    threads = []
+    for port in range(start_port, end_port + 1):
+        thread = threading.Thread(target=scan_port, args=(host, port))
+        threads.append(thread)
+        thread.start()
+
+        if len(threads) >= max_threads:
+            for t in threads:
+                t.join()
+            threads = []
+
+    for t in threads:
+        t.join()
 
 # ZAD9
 def udp_ip_to_hostname():
+    # server = ("212.182.24.27", 2906)
     server = ("127.0.0.1", 2906)
     sock = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
 
-    ip_address = input("Podaj adres IP: ")
+    ip_address = input("Podaj adres ip: ")
 
-    # Wysyłanie adresu IP w odpowiednim formacie bajtów
     sock.sendto(ip_address.encode(), server)
 
     try:
-        # Odbieranie odpowiedzi od serwera
         data, _ = sock.recvfrom(1024)
-        print("Hostname:", data.decode())  # Wyświetlanie wyniku z serwera
+        print("Hostname:", data.decode())
 
     except socket.timeout:
         print("Serwer nie odpowiedział w wyznaczonym czasie.")
 
     finally:
-        sock.close()  # Zamykanie gniazda po zakończeniu komunikacji
+        sock.close()
 
 # ZAD10
 def udp_hostname_to_ip():
@@ -111,7 +169,7 @@ def udp_hostname_to_ip():
     sock.sendto(hostname.encode(), server)
     data, _ = sock.recvfrom(1024)
     sock.close()
-    print("Adres IP:", data.decode())
+    print("Adres ip:", data.decode())
 
 # ZAD11
 def tcp_client_single_message_fixed_length():
@@ -130,7 +188,7 @@ def tcp_client_single_message_fixed_length():
 
     sock.close()
 
-    print("Odpowiedź serwera:", data.decode())
+    print(f"Odpowiedź serwera:'{data.decode()}'")
 
 # ZAD12
 def tcp_client_single_message_fixed_length_received():
@@ -141,16 +199,13 @@ def tcp_client_single_message_fixed_length_received():
 
     message = input("Wpisz wiadomość (max 20 znaków): ")
 
-    # Przycinanie wiadomości do 20 znaków lub uzupełnianie spacjami do 20
     message = message[:20].ljust(20)
 
-    # Wysyłanie wiadomości do serwera, aż cała wiadomość zostanie wysłana
     total_sent = 0
     while total_sent < len(message):
         sent = sock.send(message[total_sent:].encode())
         total_sent += sent
 
-    # Odbieranie danych od serwera
     received_data = b""
     total_received = 0
     while total_received < 20:
@@ -164,15 +219,45 @@ def tcp_client_single_message_fixed_length_received():
 
     print("Odpowiedź serwera:", received_data.decode())
 
-# Uruchamianie funkcji testowych
+# Uruchamianie zadań - odkomentowywać pojedynczo
 if __name__ == "__main__":
+    # ZAD 1
     # get_ntp_time()
+
+    # ZAD 2
     # tcp_client_single_message()
+
+    # ZAD 3
     # tcp_client_loop()
+
+    # ZAD 4
     # udp_client_single_message()
+
+    # ZAD 5
     # udp_client_loop()
+
+    # ZAD 6
     # udp_math_client()
-    udp_ip_to_hostname()
+
+    # ZAD 7
+    # server = input("Podaj adres serwera: ")
+    # port = int(input("Podaj numer portu: "))
+    # check_port_service(server, port)
+
+    # ZAD 8
+    # host = input("Podaj adres serwera: ")
+    # start_port = int(input("Podaj początkowy port: ") or 1)
+    # end_port = int(input("Podaj końcowy port: ") or 1024)
+    # scan_ports(host, start_port, end_port)
+
+    # ZAD 9
+    # udp_ip_to_hostname()
+
+    # ZAD 10
     # udp_hostname_to_ip()
+
+    # ZAD 11
     # tcp_client_single_message_fixed_length()
-    # tcp_client_single_message_fixed_length_received()
+
+    # ZAD 12
+    tcp_client_single_message_fixed_length_received()
