@@ -2,7 +2,7 @@ import socket, select, sys
 from time import gmtime, strftime
 
 
-def check_msgA_syntax(txt):
+def check_msg_a_syntax(txt):
     s = len(txt.split(";"))
     if s != 9:
         return "BAD_SYNTAX"
@@ -24,7 +24,7 @@ def check_msgA_syntax(txt):
             return "BAD_SYNTAX"
 
 
-def check_msgB_syntax(txt):
+def check_msg_b_syntax(txt):
     s = len(txt.split(";"))
     if s != 7:
         return "BAD_SYNTAX"
@@ -65,28 +65,28 @@ try:
 
         data, address = sock.recvfrom(1024)
         print('[%s] Received %s bytes from client %s. Data: %s' % (
-        strftime("%Y-%m-%d %H:%M:%S", gmtime()), len(data), address, data))
+            strftime("%Y-%m-%d %H:%M:%S", gmtime()), len(data), address, data))
 
         if data:
 
-            tmp = data.split(";")
+            tmp = data.decode().split(";")
             print("DATA: %s" % data)
 
             if tmp[0] == "zad15odpA":
-                answer = check_msgA_syntax(data)
-                sent = sock.sendto(answer, address)
+                answer = check_msg_a_syntax(data.decode())
+                sent = sock.sendto(answer.encode(), address)
                 print('[%s] Sent %s bytes bytes back to client %s.' % (
-                strftime("%Y-%m-%d %H:%M:%S", gmtime()), sent, address))
+                    strftime("%Y-%m-%d %H:%M:%S", gmtime()), sent, address))
 
             elif tmp[0] == "zad15odpB":
-                answer = check_msgB_syntax(data)
-                sent = sock.sendto(answer, address)
+                answer = check_msg_b_syntax(data.decode())
+                sent = sock.sendto(answer.encode(), address)
                 print('[%s] Sent %s bytes bytes back to client %s.' % (
-                strftime("%Y-%m-%d %H:%M:%S", gmtime()), sent, address))
+                    strftime("%Y-%m-%d %H:%M:%S", gmtime()), sent, address))
 
             else:
-                sent = sock.sendto("BAD_SYNTAX", address)
+                sent = sock.sendto("BAD_SYNTAX".encode(), address)
                 print('[%s] Sent %s bytes bytes back to client %s.' % (
-                strftime("%Y-%m-%d %H:%M:%S", gmtime()), sent, address))
+                    strftime("%Y-%m-%d %H:%M:%S", gmtime()), sent, address))
 finally:
     sock.close()

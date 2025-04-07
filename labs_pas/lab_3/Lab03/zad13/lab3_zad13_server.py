@@ -2,11 +2,6 @@ import socket, select, sys
 from time import gmtime, strftime
 
 
-import socket
-import sys
-from time import gmtime, strftime
-
-
 def check_msg_syntax(txt):
     s = len(txt.split(";"))
     if s != 7:
