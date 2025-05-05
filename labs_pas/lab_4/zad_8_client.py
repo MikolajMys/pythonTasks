@@ -1,37 +1,29 @@
 import socket
 
-
-def message_length(message, max_length, allow_oversize):
-    if len(message) < max_length:
-        message += " " * (max_length - len(message))
-    elif len(message) > max_length:
-        if not allow_oversize:
-            message = message[:max_length]
-
-    return message
-
 HOST = "127.0.0.1"
 PORT = 2900
-MAX_LENGTH = 20
 
-server_address = (HOST, PORT)
+with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as sock:
+    try:
+        sock.connect((HOST, PORT))
+        print(f"Połączono z {HOST}:{PORT}")
 
-sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+        message = input("Wpisz wiadomość do wysłania: ")
+        encoded_msg = message.encode("utf-8")
 
-try:
-    sock.connect(server_address)
-    print(f"Pomyślnie połączono z {HOST} na porcie {PORT}")
+        # Wyślij wiadomość (mniej niż 20 bajtów OK)
+        sock.sendall(encoded_msg)
+        print(f"Wysłano wiadomość: {message} ({len(encoded_msg)} bajtów)")
 
-    message = input("Enter message to send: ")
-    message = message_length(message, MAX_LENGTH, True)
+        # Odbierz dokładnie 20 bajtów
+        data = b""
+        while len(data) < 20:
+            chunk = sock.recv(20 - len(data))
+            if not chunk:
+                break
+            data += chunk
 
-    sock.sendto(message.encode("utf-8"), server_address)
-    print(f"Wiadomość wysłana: {message}")
+        print(f"Odpowiedź serwera: {data.decode('utf-8', errors='replace')} ({len(data)} bajtów)")
 
-    data, _ = sock.recvfrom(1024)
-    print(f"Odpowiedź serwera: {data.decode()}")
-
-except socket.error as e:
-    print(f"Błąd: {e}")
-
-sock.close()
+    except socket.error as e:
+        print(f"Błąd: {e}")
