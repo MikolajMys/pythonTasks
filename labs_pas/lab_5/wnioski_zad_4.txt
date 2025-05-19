@@ -1,0 +1,18 @@
+• Dla którego z gniazd czas jest krótszy?
+    Dla TCP, jego czas okazywał się w większości prób szybszy od UDP
+• Z czego wynika krótszy czas?
+    Prawdopodobnie dlatego, że TCP ma stałe połączenie z serwerem i raz się podłączy i potem tylko wysyła dane, bez zbędnego zastanawiania się gdzie iść.
+    UDP za każdym razem musi na nowo wysyłać pakiet na dany adres, bo nie ma stałego połączenia
+• Jakie są zalety / wady obu rozwiązań?
+    TCP:
+        zalety:
+            -szybkie, gdy już połączony
+    TCP:
+        wady:
+            -jak chcesz zmienić serwer, musisz się rozłączyć i podłączyć od nowa
+    UDP:
+        zalety:
+            -możesz zmieniać adres w locie zgodnie z oczekiwaniem
+    UDP:
+        wady:
+            -trochę wolniejsze na lokalnym hoście, bo każde wysłanie to osobna operacja

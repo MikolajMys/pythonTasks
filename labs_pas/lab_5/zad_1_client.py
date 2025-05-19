@@ -1,8 +1,8 @@
 import socket
 
-#SERVER_IP = "212.182.24.27"
-SERVER_IP = "127.0.0.1"
-SERVER_PORT = 2912
+#HOST = "212.182.24.27"
+HOST = "127.0.0.1"
+PORT = 2912
 
 def main():
     while True:
@@ -20,7 +20,7 @@ def main():
 
         try:
             with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as client_socket:
-                client_socket.connect((SERVER_IP, SERVER_PORT))
+                client_socket.connect((HOST, PORT))
                 client_socket.sendall(number.encode())
 
                 while True:

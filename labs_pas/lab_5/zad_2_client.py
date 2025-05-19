@@ -1,15 +1,15 @@
 import socket
 
-server_ip = "127.0.0.1"
-server_port = 2912
+HOST = "127.0.0.1"
+PORT = 2912
 
-address = (server_ip, server_port)
+ADDRESS = (HOST, PORT)
 
 client_socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
 
 try:
-    client_socket.connect(address)
-    print(f"Połączono z serwerem {server_ip} na porcie {server_port}.")
+    client_socket.connect(ADDRESS)
+    print(f"Połączono z serwerem {HOST} na porcie {PORT}.")
 
     while True:
         user_input = input("Podaj liczbę całkowitą (lub wpisz 'exit' aby zakończyć): ")
